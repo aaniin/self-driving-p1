@@ -1,56 +1,40 @@
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+**Finding Lane Lines on the Road**
 
-Overview
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
+
+
+[//]: # (Image References)
+
+[image1]: ./examples/grayscale.jpg "Grayscale"
+
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+### Reflection
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
+### 1. Pipeline
+The goal of this project was to 1) find lane-marker segments using opencv-detected edges and a hough transform and 2) consilidate the segments into stable lane delimiters. 
+#### Lane segments
+The opencv approach brings with it a multi-step pipeline with multiple parameters for each step. The steps here consisted of I) turning the image into gray-scale, II) applying a Gaussian blur, III) finding edges using a canny transform, and IV) filtering the edges with a region-of-interest, and V) finding line segments through a Hough transform.
+The grayscale was chosen here for simplicity and availability of the powerful `canny` function for grayscale images in opencv. Using grayscale, we ignore transitions from 'bright blue' to 'bright red' and only are sensitive to transitions from bright to dark. For safety reasons, lane markers are designed as bright yellow or white on a dark asphalt road. As such, grayscale processing is perfectly suited for our problem.
+The Gaussian blur was used with a kernel size of 5. It's purpose is to reduce noise in the image which might falsely trigger the edge detection. We varied the kernel size to values of 1,3,5, and 7. The choice of 5 was obtained by optimizing iteratively together with the canny parameters and the Hough transform for found lane segments.
+For the canny transform, variations of the high and low threshold were tried out. We aimed for keeping many detected edges of the current-lane markers while limiting the number of edges found for other parts in the six test images in the "test_images/" folder. Besides the current-lane markers, edges were found for other lanes, the transition from asphalt road to grass periphery, and vegation to sky. There is a clear ordering in slope from vertical (no edges) via diagonal (current-lane markers), and near-horizontal (other lanes, asphalt to peripheriy) to horizontal (vegetation to sky).
+As a next step, we used a region of interest (ROI) approach to filter out most of the near-horizontal and horizontal egdes. None of the unwated edges intersect with the abscissa in the displayed range. We use a trapezoidal ROI `(0,height),(0.45*width,0.58*height),(0.55*width,0.58*height),(width,height)` to be mostly left with edges of the lane markers of interest.
+The Hough transform to find lines, i.e. first order polynomials, was optimized to find longish line segments by requiring at least 180 pixels of line length at an image height of only 540 pixels and the visible road section being limited to half of the height of the image. This rather strict requirement was balanced by allowing long gaps of up to 150 pixels between edges. 
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+#### Consilidating line segments - draw_lines()
+The Hough transform provides the possibility to specify a coarser resolution in rho and theta, the distance and the angle resolution. However, we were not able to achieve consolidated line demarkations using the Hough transform alone. Instead the Hough transform typically provided us multiple line segements for a line marker; usually the one line segment was found for the transition from dark asphalt to bright lane marker and another segment was found for the transition from bright lane marker to dark asphalt. The consolidation was performed in the draw lines. As suggested, each line segment was classified to belong either to the left or right lane marker by sorting it according to its slope (y2-y1)/(x2-x1). The left and right segments were then averaged with the np.polyfit package using the two (start and end) points for each line segment. The resulting averaged line parameters were drawn ("extrapolated") over the lower 40% of the image.
 
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
-
-
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
-
-1. Describe the pipeline
-
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+![alt text](test_images_output/solidYellowCurve2.jpg)
 
 
-The Project
----
+### 2. Shortcomings of the current pipeline
+A clear shortcoming of the current pipeline is that it only works on straight lines. This can be clearly seen when applying it to the challenge video with the curved lane. 
+Furthermore, we can observe that while the lanes are perfectly found in all six test images, the two videos exhibit single frames without found lane markings. 
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
-
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
-
-**Step 2:** Open the code in a Jupyter Notebook
-
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
-
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+### 3. Possible improvements to the pipeline
+The curved lanes could be found by applying a second order polynomial in the hough transform line search or finding straight pieces of short lane markers and combining them with a higher order function.
+To ensure lanes are not just found in the current about 90% of the video frames but really in all frames, we should go back to the parameters of the canny and Hough algorithms and lower the thresholds. We currently did not observe spurious extra lines, so lowering the detection threshold definitely seems feasible.
