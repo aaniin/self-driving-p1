@@ -15,7 +15,7 @@ The goals / steps of this project are the following:
 
 ### Reflection
 
-### Pipeline
+### 1. Pipeline
 The goal of this project was to 1) find lane-marker segments using opencv-detected edges and a hough transform and 2) consilidate the segments into stable lane delimiters. 
 #### Lane segments
 The opencv approach brings with it a multi-step pipeline with multiple parameters for each step. The steps here consisted of I) turning the image into gray-scale, II) applying a Gaussian blur, III) finding edges using a canny transform, and IV) filtering the edges with a region-of-interest, and V) finding line segments through a Hough transform.
