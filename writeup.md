@@ -27,7 +27,8 @@ The Hough transform to find lines, i.e. first order polynomials, was optimized t
 
 #### Consilidating line segments - draw_lines()
 The Hough transform provides the possibility to specify a coarser resolution in rho and theta, the distance and the angle resolution. However, we were not able to achieve consolidated line demarkations using the Hough transform alone. Instead the Hough transform typically provided us multiple line segements for a line marker; usually the one line segment was found for the transition from dark asphalt to bright lane marker and another segment was found for the transition from bright lane marker to dark asphalt. The consolidation was performed in the draw lines. As suggested, each line segment was classified to belong either to the left or right lane marker by sorting it according to its slope (y2-y1)/(x2-x1). The left and right segments were then averaged with the np.polyfit package using the two (start and end) points for each line segment. The resulting averaged line parameters were drawn ("extrapolated") over the lower 40% of the image.
-![alt text][test_images_output/solidYellowCurve2.jpg]
+
+![alt text](test_images_output/solidYellowCurve2.jpg)
 
 
 ### 2. Identify potential shortcomings with your current pipeline
