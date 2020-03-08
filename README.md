@@ -2,15 +2,9 @@
 
 **Finding Lane Lines on the Road**
 
-The goals / steps of this project are the following:
-* Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
-
-
-[//]: # (Image References)
-
-[image1]: ./examples/grayscale.jpg "Grayscale"
-
+The goals of this project were the following:
+* Make a pipeline that finds lane lines on the road - see [the notebook in this repo](P1.ipynb)
+* Reflect on the work in a written report - see below
 ---
 
 ### Reflection
