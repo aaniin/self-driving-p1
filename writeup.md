@@ -31,10 +31,10 @@ The Hough transform provides the possibility to specify a coarser resolution in 
 ![alt text](test_images_output/solidYellowCurve2.jpg)
 
 
-### 2. Identify potential shortcomings with your current pipeline
+### 2. Shortcomings of the current pipeline
 A clear shortcoming of the current pipeline is that it only works on straight lines. This can be clearly seen when applying it to the challenge video with the curved lane. 
 Furthermore, we can observe that while the lanes are perfectly found in all six test images, the two videos exhibit single frames without found lane markings. 
 
-### 3. Suggest possible improvements to your pipeline
+### 3. Possible improvements to the pipeline
 The curved lanes could be found by applying a second order polynomial in the hough transform line search or finding straight pieces of short lane markers and combining them with a higher order function.
 To ensure lanes are not just found in the current about 90% of the video frames but really in all frames, we should go back to the parameters of the canny and Hough algorithms and lower the thresholds. We currently did not observe spurious extra lines, so lowering the detection threshold definitely seems feasible.
